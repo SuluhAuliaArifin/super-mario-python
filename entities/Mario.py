@@ -37,6 +37,8 @@ bigAnimation = Animation(
 class Mario(EntityBase):
     def __init__(self, x, y, level, screen, dashboard, sound, gravity=0.8):
         super(Mario, self).__init__(x, y, gravity)
+        self.lives = 3
+        self.dead = False
         self.camera = Camera(self.rect, self)
         self.sound = sound
         self.input = Input(self)
@@ -187,3 +189,17 @@ class Mario(EntityBase):
                 self.traits['goTrait'].updateAnimation(bigAnimation)
                 self.rect = pygame.Rect(self.rect.x, self.rect.y-32, 32, 64)
                 self.invincibilityFrames = 20
+def die(self):
+    if not self.dead:
+        self.dead = True
+        self.lives -= 1
+        self.sound.stomp()
+
+        if self.lives <= 0:
+            self.level.restart = True
+        else:
+            self.respawn()  # buat function respawn di bawah
+def respawn(self):
+    self.rect.x = 0
+    self.rect.y = 0
+    self.dead = False

@@ -15,6 +15,9 @@ class Dashboard(Font):
         self.time = 0
 
     def update(self):
+        lives_text = self.font.render(f"LIVES {self.level.mario.lives}", True, (255, 255, 255))
+        self.screen.blit(lives_text, (500, 10))
+
         self.drawText("MARIO", 50, 20, 15)
         self.drawText(self.pointString(), 50, 37, 15)
 

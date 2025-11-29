@@ -18,12 +18,20 @@ def main():
     sound = Sound()
     level = Level(screen, sound, dashboard)
     menu = Menu(screen, dashboard, level, sound)
+    lives = 3
 
     while not menu.start:
         menu.update()
 
     mario = Mario(0, 0, level, screen, dashboard, sound)
     clock = pygame.time.Clock()
+
+if player_died_condition:
+    lives -= 1
+    if lives <= 0:
+         game_over = True
+    else:
+         reset_player_position()  # atau respawn
 
     while not mario.restart:
         pygame.display.set_caption("Super Mario running with {:d} FPS".format(int(clock.get_fps())))
@@ -55,3 +63,7 @@ def draw_hud(screen, dashboard, level):
     screen.blit(score_text, (20, 45))
     screen.blit(coin_text, (20, 75))
     screen.blit(level_text, (20, 105))
+
+
+text = font.render(f"Lives: {lives}", True, (255,255,255))
+screen.blit(text, (10, 10))
