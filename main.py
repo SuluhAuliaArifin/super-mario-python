@@ -42,3 +42,16 @@ if __name__ == "__main__":
     exitmessage = 'restart'
     while exitmessage == 'restart':
         exitmessage = main()
+
+font = pygame.font.SysFont("Arial", 26)
+
+def draw_hud(screen, dashboard, level):
+    lives_text = font.render(f"Lives: {level.mario.lives}", True, (255, 255, 255))
+    score_text = font.render(f"Score: {dashboard.points}", True, (255, 255, 0))
+    coin_text = font.render(f"Coins: {dashboard.coins}", True, (255, 255, 0))
+    level_text = font.render(f"Level: {level.world}", True, (0, 255, 255))
+
+    screen.blit(lives_text, (20, 15))
+    screen.blit(score_text, (20, 45))
+    screen.blit(coin_text, (20, 75))
+    screen.blit(level_text, (20, 105))

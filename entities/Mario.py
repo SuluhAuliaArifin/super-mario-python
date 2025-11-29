@@ -58,6 +58,7 @@ class Mario(EntityBase):
         self.restart = False
         self.pause = False
         self.pauseObj = Pause(screen, self, dashboard)
+        self.lives = 3
 
     def update(self):
         if self.invincibilityFrames > 0:
