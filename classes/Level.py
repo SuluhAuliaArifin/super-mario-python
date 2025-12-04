@@ -10,7 +10,7 @@ from entities.Mushroom import RedMushroom
 from entities.Koopa import Koopa
 from entities.CoinBox import CoinBox
 from entities.RandomBox import RandomBox
-
+from entities.FireFlower import FireFlower
 
 class Level:
     def __init__(self, screen, sound, dashboard):
@@ -203,3 +203,6 @@ class Level:
         self.entityList.append(
             RedMushroom(self.screen, self.sprites.spriteCollection, x, y, self, self.sound)
         )
+
+    flower = FireFlower(300, 350)
+    self.entityList.append(flower)

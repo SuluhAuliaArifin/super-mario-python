@@ -38,6 +38,7 @@ class Mario(EntityBase):
     def __init__(self, x, y, level, screen, dashboard, sound, gravity=0.8):
         super(Mario, self).__init__(x, y, gravity)
         self.lives = 3
+        self.powerup = None  # None, "fire", "mushroom"
         self.dead = False
         self.camera = Camera(self.rect, self)
         self.sound = sound
@@ -60,7 +61,6 @@ class Mario(EntityBase):
         self.restart = False
         self.pause = False
         self.pauseObj = Pause(screen, self, dashboard)
-        self.lives = 3
 
     def update(self):
         if self.invincibilityFrames > 0:
@@ -79,7 +79,7 @@ class Mario(EntityBase):
         self.collision.checkX()
 
     def checkEntityCollision(self):
-        for ent in self.levelObj.entityList:
+        for ent in self.levelObj.entityList[:]:
             collisionState = self.EntityCollider.check(ent)
             if collisionState.isColliding:
                 if ent.type == "Item":
@@ -91,9 +91,15 @@ class Mario(EntityBase):
 
     def _onCollisionWithItem(self, item):
         self.levelObj.entityList.remove(item)
-        self.dashboard.points += 100
-        self.dashboard.coins += 1
-        self.sound.play_sfx(self.sound.coin)
+        if item.type == "fire":
+            self.get_powerup("fire")
+        elif item.type == "mushroom":
+            self.get_powerup("mushroom")
+        else:
+            # koin
+            self.dashboard.points += 100
+            self.dashboard.coins += 1
+            self.sound.play_sfx(self.sound.coin)
 
     def _onCollisionWithBlock(self, block):
         if not block.triggered:
@@ -103,7 +109,7 @@ class Mario(EntityBase):
 
     def _onCollisionWithMob(self, mob, collisionState):
         if isinstance(mob, RedMushroom) and mob.alive:
-            self.powerup(1)
+            self.get_powerup("mushroom")
             self.killEntity(mob)
             self.sound.play_sfx(self.sound.powerup)
         elif collisionState.isTop and (mob.alive or mob.bouncing):
@@ -111,30 +117,14 @@ class Mario(EntityBase):
             self.rect.bottom = mob.rect.top
             self.bounce()
             self.killEntity(mob)
-        elif collisionState.isTop and mob.alive and not mob.active:
-            self.sound.play_sfx(self.sound.stomp)
-            self.rect.bottom = mob.rect.top
-            mob.timer = 0
-            self.bounce()
-            mob.alive = False
-        elif collisionState.isColliding and mob.alive and not mob.active and not mob.bouncing:
-            mob.bouncing = True
-            if mob.rect.x < self.rect.x:
-                mob.leftrightTrait.direction = -1
-                mob.rect.x += -5
-                self.sound.play_sfx(self.sound.kick)
-            else:
-                mob.rect.x += 5
-                mob.leftrightTrait.direction = 1
-                self.sound.play_sfx(self.sound.kick)
         elif collisionState.isColliding and mob.alive and not self.invincibilityFrames:
             if self.powerUpState == 0:
                 self.gameOver()
             elif self.powerUpState == 1:
                 self.powerUpState = 0
                 self.traits['goTrait'].updateAnimation(smallAnimation)
-                x, y = self.rect.x, self.rect.y
-                self.rect = pygame.Rect(x, y + 32, 32, 32)
+                bottom = self.rect.bottom
+                self.rect = pygame.Rect(self.rect.x, bottom - 32, 32, 32)
                 self.invincibilityFrames = 60
                 self.sound.play_sfx(self.sound.pipe)
 
@@ -142,14 +132,7 @@ class Mario(EntityBase):
         self.traits["bounceTrait"].jump = True
 
     def killEntity(self, ent):
-        if ent.__class__.__name__ != "Koopa":
-            ent.alive = False
-        else:
-            ent.timer = 0
-            ent.leftrightTrait.speed = 1
-            ent.alive = True
-            ent.active = False
-            ent.bouncing = False
+        ent.alive = False
         self.dashboard.points += 100
 
     def gameOver(self):
@@ -181,25 +164,31 @@ class Mario(EntityBase):
     def setPos(self, x, y):
         self.rect.x = x
         self.rect.y = y
-        
-    def powerup(self, powerupID):
-        if self.powerUpState == 0:
-            if powerupID == 1:
-                self.powerUpState = 1
-                self.traits['goTrait'].updateAnimation(bigAnimation)
-                self.rect = pygame.Rect(self.rect.x, self.rect.y-32, 32, 64)
-                self.invincibilityFrames = 20
-def die(self):
-    if not self.dead:
-        self.dead = True
-        self.lives -= 1
-        self.sound.stomp()
 
-        if self.lives <= 0:
-            self.level.restart = True
-        else:
-            self.respawn()  # buat function respawn di bawah
-def respawn(self):
-    self.rect.x = 0
-    self.rect.y = 0
-    self.dead = False
+    def get_powerup(self, powerup_type):
+        bottom = self.rect.bottom
+        if powerup_type == "fire":
+            self.powerup = "fire"
+            self.load_fire_sprite()
+        elif powerup_type == "mushroom":
+            self.powerup = "mushroom"
+        # pakai animasi big
+        self.traits['goTrait'].updateAnimation(bigAnimation)
+        self.powerUpState = 1
+        self.rect = pygame.Rect(self.rect.x, bottom - 64, 32, 64)
+        self.invincibilityFrames = 20
+        self.sound.play_sfx(self.sound.powerup)
+
+    def die(self):
+        if not self.dead:
+            self.dead = True
+            self.lives -= 1
+            self.sound.stomp()
+            if self.lives <= 0:
+                self.level.restart = True
+            else:
+                self.respawn()
+
+    def respawn(self):
+        self.rect.x, self.rect.y = 0, 0  # atau checkpoint
+        self.dead = False
