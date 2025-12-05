@@ -32,12 +32,8 @@ class RandomBox(EntityBase):
                 self.sound.play_sfx(self.sound.powerup_appear)
 
             elif self.item == 'FireFlower':
-                # spawn bunga 1 tile di atas blok
-                flower_x = self.rect.x
-                flower_y = self.rect.y - 32  # target_y
-                self.level.addFireFlower(flower_x, flower_y)
+                self.level.addFireFlower(self.rect.y // 32 - 1, self.rect.x // 32)
                 self.sound.play_sfx(self.sound.powerup_appear)
-
 
             self.item = None
 

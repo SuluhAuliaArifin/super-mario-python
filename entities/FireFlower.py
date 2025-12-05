@@ -1,21 +1,33 @@
 from entities.EntityBase import EntityBase
+from classes.Collider import Collider
+from classes.EntityCollider import EntityCollider
+from classes.Animation import Animation
+from entities.EntityBase import EntityBase
+from classes.Maths import Vec2D
 
 class FireFlower(EntityBase):
-    def __init__(self, screen, spriteCollection, x, y, level, sound, gravity=0):
-        super(FireFlower, self).__init__(x, y + 32, gravity)  # mulai di dalam blok
-        self.screen = screen
-        self.spriteCollection = spriteCollection
+    def __init__(self, screen, spriteColl, x, y, level, sound):
+        super(FireFlower, self).__init__(y, x - 1, 0)  # sama seperti jamur, tapi gravity 0
+        self.spriteCollection = spriteColl
         self.animation = self.spriteCollection.get("FireFlower").animation
-        self.level = level
+        self.screen = screen
+        self.collision = Collider(self, level)
+        self.EntityCollider = EntityCollider(self)
+        self.levelObj = level
+        self.type = "Mob"
+        self.dashboard = level.dashboard
         self.sound = sound
-        self.alive = True
-        self.target_y = y  # posisi akhir bunga
-        self.vel = 2       # kecepatan naik
 
-    def update(self, cam):
+    def update(self, camera):
         if self.alive:
-            # animasi naik ke target_y
-            if self.rect.y > self.target_y:
-                self.rect.y -= self.vel
-            self.animation.update()
-            self.screen.blit(self.animation.image, (self.rect.x + cam.x, self.rect.y))
+            self.drawFireFlower(camera)
+        else:
+            self.alive = None
+
+    def drawFireFlower(self, camera):
+        self.screen.blit(self.animation.image, (self.rect.x + camera.x, self.rect.y))
+        self.animation.update()
+
+
+
+        
