@@ -37,6 +37,9 @@ bigAnimation = Animation(
 class Mario(EntityBase):
     def __init__(self, x, y, level, screen, dashboard, sound, gravity=0.8):
         super(Mario, self).__init__(x, y, gravity)
+                # Simpan posisi spawn awal
+        self.spawn_x = x
+        self.spawn_y = y
         self.lives = 3
         self.powerup = None  # None, "fire", "mushroom"
         self.dead = False
@@ -71,6 +74,11 @@ class Mario(EntityBase):
         self.applyGravity()
         self.checkEntityCollision()
         self.input.checkForInput()
+        # Update checkpoint posisi spawn berdasarkan kamera & posisi Mario
+        # Update checkpoint posisi spawn berdasarkan posisi Mario di dunia (bukan kamera)
+        self.spawn_x = self.rect.x
+        self.spawn_y = self.rect.y
+
 
     def moveMario(self):
         self.rect.y += self.vel.y
@@ -119,7 +127,7 @@ class Mario(EntityBase):
             self.killEntity(mob)
         elif collisionState.isColliding and mob.alive and not self.invincibilityFrames:
             if self.powerUpState == 0:
-                self.gameOver()
+                self.die()
             elif self.powerUpState == 1:
                 self.powerUpState = 0
                 self.traits['goTrait'].updateAnimation(smallAnimation)
@@ -183,12 +191,31 @@ class Mario(EntityBase):
         if not self.dead:
             self.dead = True
             self.lives -= 1
-            self.sound.stomp()
+            self.sound.play_sfx(self.sound.stomp)
+
             if self.lives <= 0:
-                self.level.restart = True
+                self.gameOver()  # tampilkan animasi game over
             else:
+                self.invincibilityFrames = 60
                 self.respawn()
 
+
     def respawn(self):
-        self.rect.x, self.rect.y = 0, 0  # atau checkpoint
+        # Posisikan Mario di checkpoint
+        self.rect.x = self.spawn_x - 250
+        self.rect.y = self.spawn_y - 500
+
+        self.vel.x = 0
+        self.vel.y = 0
+
+        # Kamera ikut respawn dengan benar
+        self.camera.x = self.spawn_x - 200  # sedikit ke belakang Mario biar kelihatan
+        if self.camera.x < 0:
+            self.camera.x = 0
+
+        self.camera.target_rect = self.rect
         self.dead = False
+
+
+
+

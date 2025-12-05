@@ -1,4 +1,4 @@
-super-mario-python/             # root project
+├──super-mario-python/             # root project
 │
 ├── README.md                   # dokumentasi dasar: cara running, dependensi, struktur
 ├── requirements.txt            # daftar dependensi (pygame, etc)
