@@ -7,7 +7,7 @@ from classes.Maths import Vec2D
 
 class FireFlower(EntityBase):
     def __init__(self, screen, spriteColl, x, y, level, sound):
-        super(FireFlower, self).__init__(y, x - 1, 0)  # sama seperti jamur, tapi gravity 0
+        super(FireFlower, self).__init__(y, x , 0)
         self.spriteCollection = spriteColl
         self.animation = self.spriteCollection.get("FireFlower").animation
         self.screen = screen
