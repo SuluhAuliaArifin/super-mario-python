@@ -14,7 +14,7 @@ class FireFlower(EntityBase):
         self.collision = Collider(self, level)
         self.EntityCollider = EntityCollider(self)
         self.levelObj = level
-        self.type = "Mob"
+        self.type = "item"
         self.dashboard = level.dashboard
         self.sound = sound
 

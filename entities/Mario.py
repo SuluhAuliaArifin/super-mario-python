@@ -32,6 +32,15 @@ bigAnimation = Animation(
     spriteCollection["mario_big_idle"].image,
     spriteCollection["mario_big_jump"].image,
 )
+putihAnimation = Animation(
+    [
+        spriteCollection["mario_putih_run1"].image,
+        spriteCollection["mario_putih_run2"].image,
+        spriteCollection["mario_putih_run3"].image,
+    ],
+    spriteCollection["mario_putih_idle"].image,
+    spriteCollection["mario_putih_jump"].image,
+)
 
 
 class Mario(EntityBase):
@@ -103,6 +112,8 @@ class Mario(EntityBase):
             self.get_powerup("fire")
         elif item.type == "mushroom":
             self.get_powerup("mushroom")
+        elif item.type == "FireFlower":
+            self.get_powerup("FireFlower")
         else:
             # koin
             self.dashboard.points += 100
@@ -175,17 +186,36 @@ class Mario(EntityBase):
 
     def get_powerup(self, powerup_type):
         bottom = self.rect.bottom
+
+        # Power-up Fire (Mario besar putih)
         if powerup_type == "fire":
             self.powerup = "fire"
             self.load_fire_sprite()
+            self.traits['goTrait'].updateAnimation(bigAnimation)
+            self.powerUpState = 1
+            self.rect = pygame.Rect(self.rect.x, bottom - 64, 32, 64)
+            self.invincibilityFrames = 20
+            self.sound.play_sfx(self.sound.powerup)
+
+        # Power-up Mushroom (mario kecil → besar)
         elif powerup_type == "mushroom":
             self.powerup = "mushroom"
-        # pakai animasi big
-        self.traits['goTrait'].updateAnimation(bigAnimation)
-        self.powerUpState = 1
-        self.rect = pygame.Rect(self.rect.x, bottom - 64, 32, 64)
-        self.invincibilityFrames = 20
-        self.sound.play_sfx(self.sound.powerup)
+            self.traits['goTrait'].updateAnimation(bigAnimation)
+            self.powerUpState = 1
+            self.rect = pygame.Rect(self.rect.x, bottom - 64, 32, 64)
+            self.invincibilityFrames = 20
+            self.sound.play_sfx(self.sound.powerup)
+
+        # Power-up FireFlower (mario besar → fire)
+        elif powerup_type == "FireFlower":
+            self.powerup = "FireFlower"
+            self.load_fire_sprite()
+            self.traits['goTrait'].updateAnimation(putihAnimation)
+            self.powerUpState = 1
+            self.rect = pygame.Rect(self.rect.x, bottom - 64, 32, 64)
+            self.invincibilityFrames = 20
+            self.sound.play_sfx(self.sound.powerup)
+
 
     def die(self):
         if not self.dead:
